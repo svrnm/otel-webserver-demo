@@ -1,0 +1,47 @@
+processors:
+  resource:
+    attributes:
+    - key: appdynamics.controller.account
+      action: upsert
+      value: "name"
+    - key: appdynamics.controller.host
+      action: upsert
+      value: "name.saas.appdynamics.com"
+    - key: appdynamics.controller.port
+      action: upsert
+      value: 443
+    - key: service.namespace
+      action: upsert
+      value: webserver_demo
+    - key: telemetry.sdk.language
+      action: insert
+      value: java
+
+  batch:
+    timeout: 10s
+    send_batch_size: 90
+              
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+exporters:
+  otlphttp/appd:
+    endpoint: "https://pdx-sls-agent-api.saas.appdynamics.com"
+    headers: {"x-api-key": "YOUR API KEY HERE"}
+  otlphttp/jaeger:
+    endpoint: "http://jaeger:4318"
+
+service:
+  extensions:
+    - oauth2client
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [resource, batch]
+      exporters: [otlphttp/jaeger] # , otlphttp/appd]
+  telemetry:
+    logs:
+      level: "debug"
