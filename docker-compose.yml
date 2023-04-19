@@ -51,3 +51,14 @@ services:
     build: ./loadgen
     environment:
       - URL=http://frontend:8000/
+  teletrace:
+    image: teletrace/teletrace:latest
+    ports:
+      - '8080:8080'
+      - '9200:9200'
+    command: ['--config=/etc/teletrace-config.yaml']
+    volumes:
+      - ./teletrace/config.yaml:/etc/teletrace-config.yaml
+    environment:
+      - SPANS_STORAGE_PLUGIN=sqlite
+    
